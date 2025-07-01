@@ -10,9 +10,12 @@ const cScale = Math.min(canvas.width, canvas.height) / simMinWidth;
 simWidth = canvas.width / cScale;
 simHeight = canvas.height / cScale;
 
+//calculating canvas coordinates
 function cX(pos) {
   return pos.x * cScale;
 }
+
+//calculating canvas coordinates
 
 function cY(pos) {
   return canvas.height - pos.y * cScale;
@@ -81,6 +84,7 @@ class Ball {
   }
 }
 
+//initial scene setup
 const physicsScene = {
   gravity: new Vector2(0, 0),
   dt: 1 / 60.0,
@@ -90,6 +94,7 @@ const physicsScene = {
   worldSize: new Vector2(simWidth, simHeight),
 };
 
+//generating the scene
 function setUpScene() {
   physicsScene.balls = [];
 
@@ -117,6 +122,8 @@ function draw() {
     ctx.fill();
   }
 }
+
+//if out of bounds reverse the velocity and set the pos at the edge
 function handleWallCollision(ball, worldSize) {
   if (ball.pos.x < ball.radius) {
     ball.pos.x = ball.radius;
@@ -137,15 +144,21 @@ function handleWallCollision(ball, worldSize) {
   }
 }
 
+//handling ball collision
 function handleBallCollision(ball1, ball2, restitution) {
+  //calculating the distance vetween two balls
   const dir = new Vector2();
   dir.subtractVectors(ball2.pos, ball1.pos);
   const dist = dir.length();
+  //if dist greater than the sum of the radii or zero, no collision
+  //if dist is zero, the balls are overlapping
   if (dist == 0.0 || dist > ball1.radius + ball2.radius) {
     return;
   }
+  //normalize the vector
   dir.scale(1.0 / dist);
 
+  //correct the positions of the balls
   const corr = (ball1.radius + ball2.radius - dist) / 2.0;
   ball1.pos.add(dir, -corr);
   ball2.pos.add(dir, corr);
@@ -155,12 +168,23 @@ function handleBallCollision(ball1, ball2, restitution) {
   const m1 = ball1.mass;
   const m2 = ball2.mass;
 
+  //conservation of momentum and restitution
+  //new velocities are calculated using the formula:
+  //v1' = (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * restitution) / (m1 + m2)
+  //v2' = (m1 * v1 + m2 * v2 - m1 * (v2 - v1) * restitution) / (m1 + m2)
+  //where v1 and v2 are the velocities of the balls before the collision
+  //and v1' and v2' are the velocities of the balls after the collision
+  //the restitution is a measure of how elastic the collision is, 1 is perfectly elastic, 0 is perfectly inelastic
+  //if the balls are moving in the same direction, no collision
+
   const newV1 = (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * restitution) / (m1 + m2);
   const newV2 = (m1 * v1 + m2 * v2 - m1 * (v2 - v1) * restitution) / (m1 + m2);
   ball1.vel.add(dir, newV1 - v1);
   ball2.vel.add(dir, newV2 - v2);
 }
 
+
+//handling the simulation
 function simulate() {
   for (let i = 0; i < physicsScene.balls.length; i++) {
     const ball = physicsScene.balls[i];
@@ -173,6 +197,7 @@ function simulate() {
   }
 }
 
+//update function to run the simulation and draw the scene
 function update() {
   simulate();
   draw();
