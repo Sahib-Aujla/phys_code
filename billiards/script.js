@@ -137,7 +137,13 @@ function handleWallCollision(ball, worldSize) {
   }
 }
 
-function simulate() {}
+function simulate() {
+    for(let i=0;i<physicsScene.balls.length;i++) {
+        const ball = physicsScene.balls[i];
+        ball.simulate(physicsScene.dt, physicsScene.gravity);
+        handleWallCollision(ball, physicsScene.worldSize);
+    }
+}
 
 function update() {
   simulate();
