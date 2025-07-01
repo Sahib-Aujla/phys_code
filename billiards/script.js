@@ -69,6 +69,30 @@ class Vector2{
     }
 }
 
+//ball class
+class Ball{
+    constructor(pos,vel,radius,mass){
+        this.pos=pos.clone();
+        this.vel=vel.clone();
+        this.radius=radius;
+        this.mass=mass;
+    }
+    simulate(dt,gravity){
+        this.vel.add(gravity, dt);
+        this.pos.add(this.vel, dt);
+    }
+}
+
+
+const physicsScene={
+    gravity:new Vector2(0,0),
+    dt:1/60.0,
+    balls:[],
+    paused:true,
+    restitution:1,
+    worldSize:new Vector2(simWidth, simHeight),
+}
+
 
 function draw(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
