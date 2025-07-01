@@ -93,11 +93,26 @@ const physicsScene={
     worldSize:new Vector2(simWidth, simHeight),
 }
 
-
+function setUpScene(){
+    physicsScene.balls=[];
+    
+    for(let i=0;i<20;i++){
+        const radius=0.05+ Math.random() * 0.1;
+        const mass= radius * radius * Math.PI;
+        const pos=new Vector2(Math.random()*simWidth, Math.random() * simHeight);
+        const vel=new Vector2(-1.0 +2.0*Math.random(), -1.0 + 2.0 * Math.random());
+        physicsScene.balls.push(new Ball(pos, vel, radius, mass));
+    }
+}
 function draw(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = 'black';
 
+    for(const ball of physicsScene.balls){
+        ctx.beginPath();
+        ctx.arc(cX(ball.pos), cY(ball.pos), ball.radius * cScale, 0, Math.PI * 2);
+        ctx.fill();
+    }
 
 }
 
