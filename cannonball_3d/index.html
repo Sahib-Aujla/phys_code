@@ -39,7 +39,9 @@
           threeScene.add(this.visMesh);
         }
         simulate() {
+          // v=u+at
           this.vel.addScaledVector(physicsScene.gravity, physicsScene.dt);
+          //s=v*t
           this.pos.addScaledVector(this.vel, physicsScene.dt);
           if (this.pos.x < -physicsScene.worldSize.x) {
             this.pos.x = -physicsScene.worldSize.x;
@@ -129,8 +131,8 @@
         renderer.shadowMap.enabled = true;
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(0.8 * window.innerWidth, 0.8 * window.innerHeight);
-        window.addEventListener('resize', onWindowResize, false);
-        document.getElementById('container').appendChild(renderer.domElement);
+        window.addEventListener("resize", onWindowResize, false);
+        document.getElementById("container").appendChild(renderer.domElement);
 
         camera = new THREE.PerspectiveCamera(
           70,
@@ -154,9 +156,9 @@
       }
 
       function run() {
-        const button = document.getElementById('buttonRun');
-        if (physicsScene.paused) button.innerHTML = 'Stop';
-        else button.innerHTML = 'Run';
+        const button = document.getElementById("buttonRun");
+        if (physicsScene.paused) button.innerHTML = "Stop";
+        else button.innerHTML = "Run";
         physicsScene.paused = !physicsScene.paused;
       }
       function restart() {
