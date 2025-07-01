@@ -2,7 +2,7 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 canvas.width = window.innerWidth - 30;
-canvas.height = window.innerHeight - 110;
+canvas.height = window.innerHeight - 130;
 
 //set up widths
 const simMinWidth = 2.0;
@@ -93,7 +93,7 @@ const physicsScene = {
 function setUpScene() {
   physicsScene.balls = [];
 
-  for (let i = 0; i < 20; i++) {
+  for (let i = 0; i < 30; i++) {
     const radius = 0.05 + Math.random() * 0.1;
     const mass = radius * radius * Math.PI;
     const pos = new Vector2(
@@ -101,8 +101,8 @@ function setUpScene() {
       Math.random() * simHeight
     );
     const vel = new Vector2(
-      -1.0 + 2.0 * Math.random(),
-      -1.0 + 2.0 * Math.random()
+      0.7 + 2.0 * Math.random(),
+      0.7 + 2.0 * Math.random()
     );
     physicsScene.balls.push(new Ball(pos, vel, radius, mass));
   }
@@ -137,12 +137,40 @@ function handleWallCollision(ball, worldSize) {
   }
 }
 
+function handleBallCollision(ball1, ball2, restitution) {
+  const dir = new Vector2();
+  dir.subtractVectors(ball2.pos, ball1.pos);
+  const dist = dir.length();
+  if (dist == 0.0 || dist > ball1.radius + ball2.radius) {
+    return;
+  }
+  dir.scale(1.0 / dist);
+
+  const corr = (ball1.radius + ball2.radius - dist) / 2.0;
+  ball1.pos.add(dir, -corr);
+  ball2.pos.add(dir, corr);
+
+  const v1 = ball1.vel.dot(dir);
+  const v2 = ball2.vel.dot(dir);
+  const m1 = ball1.mass;
+  const m2 = ball2.mass;
+
+  const newV1 = (m1 * v1 + m2 * v2 - m2 * (v1 - v2) * restitution) / (m1 + m2);
+  const newV2 = (m1 * v1 + m2 * v2 - m1 * (v2 - v1) * restitution) / (m1 + m2);
+  ball1.vel.add(dir, newV1 - v1);
+  ball2.vel.add(dir, newV2 - v2);
+}
+
 function simulate() {
-    for(let i=0;i<physicsScene.balls.length;i++) {
-        const ball = physicsScene.balls[i];
-        ball.simulate(physicsScene.dt, physicsScene.gravity);
-        handleWallCollision(ball, physicsScene.worldSize);
+  for (let i = 0; i < physicsScene.balls.length; i++) {
+    const ball = physicsScene.balls[i];
+    ball.simulate(physicsScene.dt, physicsScene.gravity);
+    for (let j = i + 1; j < physicsScene.balls.length; j++) {
+      const otherBall = physicsScene.balls[j];
+      handleBallCollision(ball, otherBall, physicsScene.restitution);
     }
+    handleWallCollision(ball, physicsScene.worldSize);
+  }
 }
 
 function update() {
@@ -151,4 +179,10 @@ function update() {
   requestAnimationFrame(update);
 }
 
+setUpScene();
+
 update();
+
+document.getElementById("restitutionSlider").oninput = function () {
+  physicsScene.restitution = this.value / 10.0;
+};
